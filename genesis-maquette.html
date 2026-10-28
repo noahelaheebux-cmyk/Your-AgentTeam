@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Genesis · Maquette IA pour les entreprises du bâtiment</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0B0B0C;
+      --sidebar-bg: #0E0E10;
+      --surface: #161618;
+      --surface2: #1C1C1E;
+      --accent: #C9A76B;
+      --accent-dim: rgba(201,167,107,0.13);
+      --accent-border: rgba(201,167,107,0.28);
+      --text: #F2EDE6;
+      --text-dim: #888;
+      --border: rgba(255,255,255,0.07);
+      --green: #52C87A;
+      --amber: #F5B731;
+      --red: #FF5C5C;
+      --blue: #7EC8F5;
+      --purple: #C49DF5;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 240px;
+      min-width: 240px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .sidebar-logo {
+      padding: 1.4em 1.5em 1.1em;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .agency-name {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.05em;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .sidebar-logo .platform-url {
+      font-size: 0.6em;
+      color: var(--text-dim);
+      margin-top: 0.3em;
+      line-height: 1.4;
+    }
+    .sidebar-nav {
+      flex: 1;
+      padding: 0.8em 0.6em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15em;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7em;
+      padding: 0.58em 0.8em;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.84em;
+      color: var(--text-dim);
+      transition: all 0.13s;
+      user-select: none;
+    }
+    .nav-item:hover { background: var(--surface); color: var(--text); }
+    .nav-item.active { background: var(--accent-dim); color: var(--accent); }
+    .nav-icon { font-size: 1em; width: 1.1em; text-align: center; flex-shrink: 0; }
+    .sidebar-footer {
+      padding: 0.9em 1.1em;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.65em;
+    }
+    .s-avatar {
+      width: 30px; height: 30px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72em; font-weight: 700; color: #0B0B0C;
+      flex-shrink: 0;
+    }
+    .s-user-name { font-size: 0.76em; font-weight: 500; color: var(--text); }
+    .s-user-role { font-size: 0.62em; color: var(--text-dim); }
+
+    /* ─── MAIN ─── */
+    .main { flex: 1; overflow-y: auto; height: 100vh; position: relative; }
+
+    /* ─── VIEWS ─── */
+    .view { display: none; padding: 1.8em 2.2em; min-height: 100%; }
+    .view.active { display: block; }
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.6em;
+      padding-bottom: 1em;
+      border-bottom: 1px solid var(--border);
+    }
+    .view-title { font-family: 'Instrument Serif', serif; font-size: 1.55em; color: var(--text); }
+    .view-subtitle { font-size: 0.7em; color: var(--text-dim); margin-top: 0.2em; }
+    .header-right { text-align: right; font-size: 0.7em; color: var(--text-dim); }
+
+    /* ─── KPI GRID ─── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9em;
+      margin-bottom: 1.5em;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1em 1.2em;
+    }
+    .kpi-label {
+      font-size: 0.62em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.45em;
+    }
+    .kpi-value {
+      font-family: 'Instrument Serif', serif;
+      font-size: 1.9em;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .kpi-delta { font-size: 0.63em; margin-top: 0.4em; color: var(--green); }
+    .kpi-action {
+      font-size: 0.62em; margin-top: 0.4em;
+      color: var(--accent); cursor: pointer; text-decoration: underline;
+    }
+
+    /* ─── SECTION LABEL ─── */
+    .section-label {
+      font-size: 0.62em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 0.65em;
+    }
+
+    /* ─── DEPT GRID ─── */
+    .dept-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.9em;
+      margin-bottom: 1.5em;
+    }
+    .dept-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1em 1.2em;
+    }
+    .dept-name {
+      font-size: 0.68em;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75em;
+    }
+    .dept-kpi {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7em;
+      padding: 0.28em 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .dept-kpi:last-of-type { border-bottom: none; }
+    .dept-kpi span:last-child { color: var(--text); font-weight: 500; }
+    .sparkline {
+      margin-top: 0.75em;
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 28px;
+    }
+    .spark-bar {
+      flex: 1;
+      background: var(--accent);
+      opacity: 0.45;
+      border-radius: 2px 2px 0 0;
+      min-height: 3px;
+    }
+
+    /* ─── ACTIVITY FEED ─── */
+    .activity-feed {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1em 1.3em;
+    }
+    .feed-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75em;
+      padding: 0.45em 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.76em;
+    }
+    .feed-item:last-child { border-bottom: none; }
+    .feed-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin-top: 0.35em; flex-shrink: 0; }
+    .feed-content { flex: 1; color: var(--text); line-height: 1.4; }
+    .feed-time { font-size: 0.88em; color: var(--text-dim); white-space: nowrap; }
+    .ftag {
+      display: inline-block;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border-radius: 3px;
+      padding: 0.04em 0.38em;
+      font-size: 0.82em;
+      margin-right: 0.25em;
+    }
+
+    /* ─── AGENT CARDS ─── */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.1em;
+    }
+    .agent-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.3em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75em;
+      transition: border-color 0.15s;
+    }
+    .agent-card:hover { border-color: var(--accent-border); }
+    .agent-header { display: flex; align-items: center; gap: 0.75em; }
+    .a-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1em; font-weight: 700;
+      font-family: 'Instrument Serif', serif;
+      flex-shrink: 0;
+    }
+    .a-name { font-size: 0.92em; font-weight: 600; color: var(--text); }
+    .a-role { font-size: 0.67em; color: var(--text-dim); margin-top: 0.12em; }
+    .dept-badge {
+      display: inline-block;
+      border-radius: 4px;
+      padding: 0.1em 0.48em;
+      font-size: 0.6em;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .tools-row { display: flex; flex-wrap: wrap; gap: 0.3em; }
+    .tool-tag {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 4px;
+      padding: 0.13em 0.48em;
+      font-size: 0.63em;
+    }
+    .a-status { display: flex; align-items: center; gap: 0.38em; font-size: 0.67em; color: var(--text-dim); }
+    .s-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .agent-footer { padding-top: 0.55em; border-top: 1px solid var(--border); }
+    .btn-chat {
+      width: 100%;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-border);
+      color: var(--accent);
+      border-radius: 7px;
+      padding: 0.5em;
+      font-size: 0.76em;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.13s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-chat:hover { background: rgba(201,167,107,0.22); }
+
+    /* ─── TASK BOARD ─── */
+    .kanban { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1em; align-items: start; }
+    .kanban-col { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .k-header {
+      padding: 0.75em 0.9em;
+      font-size: 0.67em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .k-header.kh-ongoing { color: var(--accent); border-left: 3px solid var(--accent); }
+    .k-header.kh-wait    { color: var(--amber);  border-left: 3px solid var(--amber); }
+    .k-header.kh-done    { color: var(--green);  border-left: 3px solid var(--green); }
+    .k-count { background: var(--surface2); border-radius: 10px; padding: 0.08em 0.48em; font-size: 0.88em; color: var(--text-dim); }
+    .k-cards { padding: 0.45em; display: flex; flex-direction: column; gap: 0.35em; }
+    .task-card {
+      background: var(--bg);
+      border-radius: 7px;
+      padding: 0.65em 0.75em;
+      border-left: 3px solid transparent;
+    }
+    .task-card.tc-ongoing { border-left-color: var(--accent); }
+    .task-card.tc-wait    { border-left-color: var(--amber); }
+    .task-card.tc-done    { border-left-color: var(--green); opacity: 0.72; }
+    .task-title { font-size: 0.73em; color: var(--text); margin-bottom: 0.38em; line-height: 1.35; }
+    .task-meta { display: flex; align-items: center; justify-content: space-between; }
+    .task-agent-tag {
+      background: var(--accent-dim); color: var(--accent);
+      border-radius: 3px; padding: 0.06em 0.38em; font-size: 0.6em;
+    }
+    .task-time { font-size: 0.6em; color: var(--text-dim); }
+
+    /* ─── ORGANIGRAMME ─── */
+    .org-dept-tree { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.9em; margin-top: 0; }
+    .org-dept-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .org-vline { width: 2px; height: 22px; background: var(--accent-border); }
+    .org-box-dept {
+      width: 100%;
+      padding: 0.55em 0.4em;
+      border-radius: 7px;
+      font-size: 0.66em;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: 0.02em;
+      line-height: 1.25;
+    }
+    .org-box-dept span { display: block; font-weight: 400; font-size: 0.85em; opacity: 0.7; margin-top: 0.2em; letter-spacing: 0; text-transform: none; }
+    .org-agent-stack { display: flex; flex-direction: column; gap: 0.4em; width: 100%; margin-top: 0.4em; }
+    .org-box-agent {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.5em 0.4em;
+      font-size: 0.64em;
+      color: var(--text);
+      text-align: center;
+      width: 100%;
+    }
+    .org-box-agent b { display: block; font-size: 1.05em; margin-bottom: 0.1em; }
+    .org-box-agent span { color: var(--text-dim); font-size: 0.86em; display: block; font-style: italic; }
+    .org-legend { width: 210px; display: flex; flex-direction: column; gap: 0.75em; flex-shrink: 0; }
+    .legend-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1em 1.2em;
+    }
+    .legend-title { font-size: 0.6em; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4em; }
+    .legend-val { font-family: 'Instrument Serif', serif; font-size: 1.8em; color: var(--accent); line-height: 1; }
+    .legend-sub { font-size: 0.65em; color: var(--text-dim); margin-top: 0.2em; }
+
+    /* ─── CHAT OVERLAY ─── */
+    .chat-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 240px; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 100;
+      flex-direction: column;
+    }
+    .chat-overlay.active { display: flex; }
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.9em;
+      padding: 1em 1.8em;
+      border-bottom: 1px solid var(--border);
+      background: var(--sidebar-bg);
+    }
+    .btn-back {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 6px;
+      padding: 0.38em 0.75em;
+      font-size: 0.73em;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-back:hover { color: var(--text); }
+    .chat-agent-name { font-size: 0.92em; font-weight: 600; color: var(--text); }
+    .chat-agent-role { font-size: 0.67em; color: var(--text-dim); }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.4em 1.8em;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9em;
+    }
+    .msg { display: flex; gap: 0.65em; max-width: 72%; }
+    .msg.human { align-self: flex-end; flex-direction: row-reverse; }
+    .m-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.68em; font-weight: 700; flex-shrink: 0;
+    }
+    .m-avatar.av-agent { background: var(--accent); color: #0B0B0C; }
+    .m-avatar.av-human { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); }
+    .msg-bubble { padding: 0.75em 0.95em; border-radius: 11px; font-size: 0.8em; line-height: 1.55; }
+    .msg.agent .msg-bubble { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 4px 11px 11px 11px; }
+    .msg.human .msg-bubble { background: var(--accent-dim); border: 1px solid var(--accent-border); color: var(--text); border-radius: 11px 4px 11px 11px; }
+    .msg-time { font-size: 0.62em; color: var(--text-dim); margin-top: 0.25em; }
+    .msg.agent .msg-time { text-align: left; }
+    .msg.human .msg-time { text-align: right; }
+    .chat-input-area { padding: 0.9em 1.8em; border-top: 1px solid var(--border); background: var(--sidebar-bg); }
+    .chat-input-wrap {
+      display: flex; gap: 0.45em;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 9px; padding: 0.55em 0.75em; align-items: center;
+    }
+    .chat-input-wrap input {
+      flex: 1; background: none; border: none; outline: none;
+      color: var(--text); font-size: 0.8em; font-family: 'Inter', sans-serif;
+    }
+    .chat-input-wrap input::placeholder { color: var(--text-dim); }
+    .btn-send { background: var(--accent); border: none; border-radius: 6px; padding: 0.38em 0.75em; color: #0B0B0C; font-size: 0.75em; font-weight: 600; cursor: default; }
+
+
+
+    /* Prospect-facing introduction */
+    .prospect-hero {
+      background: radial-gradient(ellipse at 85% 15%, rgba(201,167,107,0.13), transparent 42%), var(--surface);
+      border: 1px solid var(--accent-border);
+      border-radius: 14px;
+      padding: 1.65em 1.7em 1.2em;
+      margin-bottom: 1.5em;
+    }
+    .hero-eyebrow { color: var(--accent); font-size: .62em; letter-spacing: .16em; font-weight: 700; margin-bottom: .7em; }
+    .prospect-hero h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: clamp(1.8em, 3vw, 2.65em); line-height: 1.06; max-width: 780px; }
+    .prospect-hero h1 em { color: var(--accent); font-weight: 400; }
+    .prospect-hero p { color: #B9B4AD; font-size: .82em; line-height: 1.65; max-width: 690px; margin-top: .85em; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: .65em; margin-top: 1.1em; }
+    .hero-actions button { border-radius: 7px; padding: .72em 1em; font: 500 .76em 'Inter', sans-serif; cursor: pointer; }
+    .hero-primary { background: var(--accent); color: #0B0B0C; border: 1px solid var(--accent); }
+    .hero-primary span { margin-left: .55em; }
+    .hero-secondary { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,.16); }
+    .demo-disclaimer { display: flex; gap: .55em; align-items: flex-start; border-top: 1px solid var(--border); margin-top: 1.2em; padding-top: .8em; color: var(--text-dim); font-size: .65em; line-height: 1.5; }
+    .demo-disclaimer > span:first-child { color: var(--accent); }
+    .demo-disclaimer strong { color: var(--text); font-weight: 600; }
+    .demo-status { color: var(--amber); font-weight: 700; letter-spacing: .06em; }
+    .kpi-value { font-size: clamp(1.15em, 1.6vw, 1.9em); overflow-wrap: anywhere; }
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dept-grid, .agents-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .org-dept-tree { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 1em; }
+    }
+    @media (max-width: 760px) {
+      body { height: auto; min-height: 100vh; overflow: auto; display: block; }
+      .sidebar { width: 100%; min-width: 0; height: auto; }
+      .sidebar-logo { padding: .9em 1em; }
+      .sidebar-nav { flex-direction: row; overflow-x: auto; padding: .5em; }
+      .nav-item { white-space: nowrap; }
+      .sidebar-footer { display: none; }
+      .main { height: auto; overflow: visible; }
+      .view { padding: 1.1em; }
+      .view-header { gap: .8em; flex-direction: column; }
+      .header-right { text-align: left; }
+      .kpi-grid, .dept-grid, .agents-grid, .kanban { grid-template-columns: 1fr; }
+      .org-dept-tree { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .chat-overlay { left: 0; }
+      .chat-header, .chat-messages, .chat-input-area { padding-left: 1em; padding-right: 1em; }
+      .msg { max-width: 94%; }
+      .prospect-hero { padding: 1.2em; }
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  
+/* Mobile-first polish for Instagram traffic */
+@media (max-width: 760px) {
+  html { -webkit-text-size-adjust: 100%; }
+  body { overflow-x: hidden; }
+  .app, .app-shell, .layout, .main, .main-content { max-width: 100%; }
+  .sidebar { width: 68px !important; min-width: 68px !important; }
+  .sidebar .brand-name, .sidebar .nav-label, .sidebar .nav-section, .sidebar .company-label { display: none !important; }
+  .main-content, .main, .content { min-width: 0 !important; width: auto !important; }
+  .hero, .hero-panel { padding: 20px 16px !important; }
+  h1 { font-size: clamp(1.45rem, 6vw, 2rem) !important; line-height: 1.15 !important; }
+  .hero p, .hero-subtitle { font-size: 14px !important; line-height: 1.5 !important; }
+  .hero-actions, .hero-buttons { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+  .hero-actions a, .hero-buttons a, .hero-actions button, .hero-buttons button { width: 100%; justify-content: center; }
+  .stats-grid, .kpi-grid, .department-grid, .agent-grid, .metrics-grid { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+  .view, .panel, .card, .agent-card, .department-card { min-width: 0; }
+  table { display: block; max-width: 100%; overflow-x: auto; }
+  .chat-overlay { width: 100% !important; max-width: 100% !important; left: 0 !important; right: 0 !important; }
+  button, a, .nav-item { touch-action: manipulation; }
+}
+@media (min-width: 420px) and (max-width: 760px) {
+  .stats-grid, .kpi-grid, .department-grid, .agent-grid, .metrics-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="agency-name">Genesis</div>
+    <div class="platform-url">MAQUETTE INTERACTIVE<br>Exemple d’infrastructure IA</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="switchView('dashboard')"><span class="nav-icon">▦</span> Dashboard</div>
+    <div class="nav-item" onclick="switchView('agents')"><span class="nav-icon">◉</span> Agents</div>
+    <div class="nav-item" onclick="switchView('taskboard')"><span class="nav-icon">☰</span> Task Board</div>
+    <div class="nav-item" onclick="switchView('organigramme')"><span class="nav-icon">⌬</span> Organigramme</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="s-avatar">VE</div>
+    <div>
+      <div class="s-user-name">Votre Entreprise</div>
+      <div class="s-user-role">Accès Direction</div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <!-- ── VUE DASHBOARD ── -->
+  <div id="view-dashboard" class="view active">
+    <section class="prospect-hero">
+      <div class="hero-eyebrow">GENESIS · INFRASTRUCTURE IA</div>
+      <h1>Une équipe d’agents IA, <em>coordonnée autour de votre activité.</em></h1>
+      <p>Cette maquette montre comment une infrastructure IA peut aider les entreprises du bâtiment — tous corps de métier confondus — à suivre les demandes de devis, coordonner les tâches administratives, relancer les clients et garder une vue claire sur les chantiers.</p>
+      <div class="hero-actions">
+        <button class="hero-primary" onclick="switchView('agents')">Découvrir les agents <span>→</span></button>
+        <button class="hero-secondary" onclick="switchView('organigramme')">Voir comment ils collaborent</button>
+      </div>
+      <div class="demo-disclaimer"><span>ⓘ</span><span><strong>Maquette illustrative :</strong> les noms, chiffres, activités et conversations affichés dans certaines vues sont des exemples fictifs. Le système réel est défini à partir de vos processus et de vos objectifs.</span></div>
+    </section>
+    <div class="view-header">
+      <div>
+        <div class="view-title">Votre entreprise du bâtiment, mieux organisée</div>
+        <div class="view-subtitle">Du premier contact au devis, puis au suivi des chantiers et des paiements</div>
+      </div>
+      <div class="header-right"><span class="demo-status">● MAQUETTE DE DÉMONSTRATION · BÂTIMENT</span><br><span style="color:var(--text-dim)">Exemple à adapter à votre activité</span></div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Suivi opérationnel</div>
+        <div class="kpi-value">Sur mesure</div>
+        <div class="kpi-delta">Selon vos processus et priorités</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Objectif</div>
+        <div class="kpi-value">Mesurable</div>
+        <div class="kpi-delta">Moins d’oublis, plus de visibilité</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Contrôle humain</div>
+        <div class="kpi-value">Inclus</div>
+        <div class="kpi-action" onclick="switchView('taskboard')">Voir les validations →</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Chantiers</div>
+        <div class="kpi-value">Centralisé</div>
+        <div class="kpi-delta">Suivi des tâches et points à valider</div>
+      </div>
+    </div>
+
+    <div class="section-label">Vue d’ensemble · exemple fictif</div>
+    <div class="dept-grid">
+      <div class="dept-card">
+        <div class="dept-name" style="color:var(--accent)">▸ Demandes & devis</div>
+        <div class="dept-kpi"><span>Demandes entrantes (7j)</span><span>26</span></div>
+        <div class="dept-kpi"><span>Devis préparés</span><span>14</span></div>
+        <div class="dept-kpi"><span>Devis acceptés</span><span>29%</span></div>
+        <div class="sparkline">
+          <div class="spark-bar" style="background:var(--accent);height:30%"></div><div class="spark-bar" style="background:var(--accent);height:42%"></div>
+          <div class="spark-bar" style="background:var(--accent);height:38%"></div><div class="spark-bar" style="background:var(--accent);height:55%"></div>
+          <div class="spark-bar" style="background:var(--accent);height:65%"></div><div class="spark-bar" style="background:var(--accent);height:80%"></div>
+          <div class="spark-bar" style="background:var(--accent);height:92%"></div>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name" style="color:var(--blue)">▸ Chantiers</div>
+        <div class="dept-kpi"><span>Chantiers suivis</span><span>9</span></div>
+        <div class="dept-kpi"><span>Étapes planifiées</span><span>18 400</span></div>
+        <div class="dept-kpi"><span>Points à vérifier</span><span>11</span></div>
+        <div class="sparkline">
+          <div class="spark-bar" style="background:var(--blue);height:22%"></div><div class="spark-bar" style="background:var(--blue);height:35%"></div>
+          <div class="spark-bar" style="background:var(--blue);height:48%"></div><div class="spark-bar" style="background:var(--blue);height:44%"></div>
+          <div class="spark-bar" style="background:var(--blue);height:60%"></div><div class="spark-bar" style="background:var(--blue);height:70%"></div>
+          <div class="spark-bar" style="background:var(--blue);height:85%"></div>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name" style="color:var(--green)">▸ Clients</div>
+        <div class="dept-kpi"><span>Demandes clients traitées</span><span>63</span></div>
+        <div class="dept-kpi"><span>Délai de réponse</span><span>4 min</span></div>
+        <div class="dept-kpi"><span>Satisfaction client</span><span>96%</span></div>
+        <div class="sparkline">
+          <div class="spark-bar" style="background:var(--green);height:40%"></div><div class="spark-bar" style="background:var(--green);height:50%"></div>
+          <div class="spark-bar" style="background:var(--green);height:58%"></div><div class="spark-bar" style="background:var(--green);height:65%"></div>
+          <div class="spark-bar" style="background:var(--green);height:72%"></div><div class="spark-bar" style="background:var(--green);height:80%"></div>
+          <div class="spark-bar" style="background:var(--green);height:88%"></div>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name" style="color:var(--purple)">▸ Administratif &amp; Finance</div>
+        <div class="dept-kpi"><span>Factures préparées (7j)</span><span>22</span></div>
+        <div class="dept-kpi"><span>Relances de paiement</span><span>15</span></div>
+        <div class="dept-kpi"><span>Paiements en retard</span><span>-38%</span></div>
+        <div class="sparkline">
+          <div class="spark-bar" style="background:var(--purple);height:60%"></div><div class="spark-bar" style="background:var(--purple);height:52%"></div>
+          <div class="spark-bar" style="background:var(--purple);height:44%"></div><div class="spark-bar" style="background:var(--purple);height:36%"></div>
+          <div class="spark-bar" style="background:var(--purple);height:30%"></div><div class="spark-bar" style="background:var(--purple);height:24%"></div>
+          <div class="spark-bar" style="background:var(--purple);height:18%"></div>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name" style="color:var(--amber)">▸ RH &amp; Recrutement</div>
+        <div class="dept-kpi"><span>Disponibilités vérifiées (7j)</span><span>47</span></div>
+        <div class="dept-kpi"><span>Intervenants à confirmer</span><span>8</span></div>
+        <div class="dept-kpi"><span>Interventions planifiées</span><span>3</span></div>
+        <div class="sparkline">
+          <div class="spark-bar" style="background:var(--amber);height:25%"></div><div class="spark-bar" style="background:var(--amber);height:38%"></div>
+          <div class="spark-bar" style="background:var(--amber);height:45%"></div><div class="spark-bar" style="background:var(--amber);height:55%"></div>
+          <div class="spark-bar" style="background:var(--amber);height:62%"></div><div class="spark-bar" style="background:var(--amber);height:75%"></div>
+          <div class="spark-bar" style="background:var(--amber);height:82%"></div>
+        </div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name" style="color:var(--text)">▸ Direction / Chantiers</div>
+        <div class="dept-kpi"><span>Points de situation (7j)</span><span>7</span></div>
+        <div class="dept-kpi"><span>Alertes à vérifier</span><span>2</span></div>
+        <div class="dept-kpi"><span>Temps reporting gagné</span><span>~5h/sem</span></div>
+        <div class="sparkline">
+          <div class="spark-bar" style="height:20%"></div><div class="spark-bar" style="height:32%"></div>
+          <div class="spark-bar" style="height:40%"></div><div class="spark-bar" style="height:52%"></div>
+          <div class="spark-bar" style="height:64%"></div><div class="spark-bar" style="height:76%"></div>
+          <div class="spark-bar" style="height:88%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label">Activité récente · tous départements</div>
+    <div class="activity-feed">
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--accent)"></div>
+        <div class="feed-content"><span class="ftag">Léa</span>Lead entrant qualifié — score 84/100, budget confirmé. Fiche transmise à Marc pour la proposition commerciale.</div>
+        <div class="feed-time">il y a 4 min</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--blue)"></div>
+        <div class="feed-content"><span class="ftag" style="background:rgba(126,200,245,0.12);color:var(--blue)">Nora</span>Publication programmée — post Instagram + LinkedIn, portée estimée 3 200 vues. Contenu généré depuis le brief client.</div>
+        <div class="feed-time">il y a 12 min</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--green)"></div>
+        <div class="feed-content"><span class="ftag" style="background:rgba(82,200,122,0.12);color:var(--green)">Yanis</span>Ticket #4021 résolu — question facturation cliente, réponse en 3 min, satisfaction 5/5.</div>
+        <div class="feed-time">il y a 18 min</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--amber)"></div>
+        <div class="feed-content"><span class="ftag" style="background:rgba(245,183,49,0.12);color:var(--amber)">Camille</span>Validation requise — avoir client de 620€ hors barème standard. En attente direction.</div>
+        <div class="feed-time">il y a 26 min</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--purple)"></div>
+        <div class="feed-content"><span class="ftag" style="background:rgba(196,157,245,0.12);color:var(--purple)">Sami</span>12 nouvelles candidatures triées pour le poste "Chargé(e) de clientèle" — 3 profils pré-qualifiés, entretiens proposés.</div>
+        <div class="feed-time">il y a 41 min</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--accent)"></div>
+        <div class="feed-content"><span class="ftag">Marc</span>Devis #2026-118 envoyé — 3 400€ HT, relance J+2 programmée automatiquement.</div>
+        <div class="feed-time">il y a 55 min</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot"></div>
+        <div class="feed-content"><span class="ftag">Iris</span>Daily brief consolidé envoyé à la direction — synthèse des 6 départements, 2 points d'attention identifiés.</div>
+        <div class="feed-time">09:00</div>
+      </div>
+      <div class="feed-item">
+        <div class="feed-dot" style="background:var(--purple)"></div>
+        <div class="feed-content"><span class="ftag" style="background:rgba(196,157,245,0.12);color:var(--purple)">Camille</span>15 relances de paiement envoyées automatiquement — 4 encaissements confirmés depuis hier.</div>
+        <div class="feed-time">08:47</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VUE AGENTS ── -->
+  <div id="view-agents" class="view">
+    <div class="view-header">
+      <div>
+        <div class="view-title">Agents</div>
+        <div class="view-subtitle">Exemples de rôles possibles · sélectionnés selon vos besoins</div>
+      </div>
+      <div class="header-right">Ouvrir un exemple de conversation</div>
+    </div>
+    <div class="agents-grid">
+
+      <!-- Léa -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--accent);color:#0B0B0C;">L</div>
+          <div><div class="a-name">Léa</div><div class="a-role">Agent de qualification &amp; prospection</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:var(--accent-dim);color:var(--accent);">Commercial</span></div>
+        <div class="tools-row"><span class="tool-tag">CRM</span><span class="tool-tag">LinkedIn</span><span class="tool-tag">Gmail</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · 26 leads qualifiés cette semaine</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('lea')">Parler à Léa →</div></div>
+      </div>
+
+      <!-- Marc -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--accent);color:#0B0B0C;">M</div>
+          <div><div class="a-name">Marc</div><div class="a-role">Agent de suivi commercial &amp; devis</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:var(--accent-dim);color:var(--accent);">Commercial</span></div>
+        <div class="tools-row"><span class="tool-tag">CRM</span><span class="tool-tag">Email</span><span class="tool-tag">Calendrier</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · devis #2026-118 envoyé</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('marc')">Parler à Marc →</div></div>
+      </div>
+
+      <!-- Nora -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--blue);color:#0B0B0C;">N</div>
+          <div><div class="a-name">Nora</div><div class="a-role">Agent de contenu &amp; diffusion</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:rgba(126,200,245,0.12);color:var(--blue);">Chantiers</span></div>
+        <div class="tools-row"><span class="tool-tag">Réseaux sociaux</span><span class="tool-tag">Canva</span><span class="tool-tag">Email</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · 9 publications cette semaine</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('nora')">Parler à Nora →</div></div>
+      </div>
+
+      <!-- Yanis -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--green);color:#0B0B0C;">Y</div>
+          <div><div class="a-name">Yanis</div><div class="a-role">Agent de support &amp; réclamations</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:rgba(82,200,122,0.12);color:var(--green);">Clients</span></div>
+        <div class="tools-row"><span class="tool-tag">WhatsApp</span><span class="tool-tag">Email</span><span class="tool-tag">CRM</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · 63 tickets traités (7j)</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('yanis')">Parler à Yanis →</div></div>
+      </div>
+
+      <!-- Camille -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--purple);color:#0B0B0C;">C</div>
+          <div><div class="a-name">Camille</div><div class="a-role">Agent de facturation &amp; relances paiement</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:rgba(196,157,245,0.12);color:var(--purple);">Administratif &amp; Finance</span></div>
+        <div class="tools-row"><span class="tool-tag">Comptabilité</span><span class="tool-tag">Email</span><span class="tool-tag">Banque</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · 15 relances envoyées (7j)</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('camille')">Parler à Camille →</div></div>
+      </div>
+
+      <!-- Sami -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--amber);color:#0B0B0C;">S</div>
+          <div><div class="a-name">Sami</div><div class="a-role">Agent de tri CV &amp; pré-qualification</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:rgba(245,183,49,0.12);color:var(--amber);">RH &amp; Recrutement</span></div>
+        <div class="tools-row"><span class="tool-tag">LinkedIn</span><span class="tool-tag">Email</span><span class="tool-tag">ATS</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · 47 Disponibilités vérifiées (7j)</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('sami')">Parler à Sami →</div></div>
+      </div>
+
+      <!-- Iris -->
+      <div class="agent-card">
+        <div class="agent-header">
+          <div class="a-avatar" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">I</div>
+          <div><div class="a-name">Iris</div><div class="a-role">Agent de reporting &amp; consolidation</div></div>
+        </div>
+        <div><span class="dept-badge" style="background:var(--surface2);color:var(--text-dim);border:1px solid var(--border);">Direction</span></div>
+        <div class="tools-row"><span class="tool-tag">Tous systèmes</span><span class="tool-tag">Slack</span><span class="tool-tag">Email</span></div>
+        <div class="a-status"><div class="s-dot" style="background:var(--green)"></div>Actif · rapport 09h00 envoyé</div>
+        <div class="agent-footer"><div class="btn-chat" onclick="openAgentChat('iris')">Parler à Iris →</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── VUE TASK BOARD ── -->
+  <div id="view-taskboard" class="view">
+    <div class="view-header">
+      <div>
+        <div class="view-title">Task Board</div>
+        <div class="view-subtitle">Temps réel · toutes les équipes · mis à jour automatiquement</div>
+      </div>
+      <div class="header-right"><span style="color:var(--green)">● Live</span></div>
+    </div>
+    <div class="kanban">
+
+      <!-- En cours -->
+      <div class="kanban-col">
+        <div class="k-header kh-ongoing">En cours <span class="k-count">7</span></div>
+        <div class="k-cards">
+          <div class="task-card tc-ongoing"><div class="task-title">Qualification lead entrant · budget confirmé, score 84/100</div><div class="task-meta"><span class="task-agent-tag">Léa</span><span class="task-time">il y a 4 min</span></div></div>
+          <div class="task-card tc-ongoing"><div class="task-title">Rédaction devis #2026-119 · client grand compte</div><div class="task-meta"><span class="task-agent-tag">Marc</span><span class="task-time">il y a 15 min</span></div></div>
+          <div class="task-card tc-ongoing"><div class="task-title">Création visuel + copy · campagne réseaux sociaux S31</div><div class="task-meta"><span class="task-agent-tag">Nora</span><span class="task-time">il y a 22 min</span></div></div>
+          <div class="task-card tc-ongoing"><div class="task-title">Traitement file d'attente support · 4 tickets ouverts</div><div class="task-meta"><span class="task-agent-tag">Yanis</span><span class="task-time">il y a 30 min</span></div></div>
+          <div class="task-card tc-ongoing"><div class="task-title">Rapprochement bancaire · relances paiement en cours</div><div class="task-meta"><span class="task-agent-tag">Camille</span><span class="task-time">il y a 1h</span></div></div>
+          <div class="task-card tc-ongoing"><div class="task-title">Tri de 12 nouvelles candidatures · poste Chargé(e) clientèle</div><div class="task-meta"><span class="task-agent-tag">Sami</span><span class="task-time">il y a 1h</span></div></div>
+          <div class="task-card tc-ongoing"><div class="task-title">Consolidation reporting hebdo · 6 départements</div><div class="task-meta"><span class="task-agent-tag">Iris</span><span class="task-time">il y a 2h</span></div></div>
+        </div>
+      </div>
+
+      <!-- Validation requise -->
+      <div class="kanban-col">
+        <div class="k-header kh-wait">Validation requise <span class="k-count">4</span></div>
+        <div class="k-cards">
+          <div class="task-card tc-wait"><div class="task-title">Avoir client 620€ hors barème standard</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(245,183,49,0.12);color:var(--amber)">Camille</span><span class="task-time">il y a 26 min</span></div></div>
+          <div class="task-card tc-wait"><div class="task-title">Remise -10% demandée par client grand compte</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(245,183,49,0.12);color:var(--amber)">Marc</span><span class="task-time">il y a 1h</span></div></div>
+          <div class="task-card tc-wait"><div class="task-title">Candidat pré-qualifié à confirmer pour entretien final</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(245,183,49,0.12);color:var(--amber)">Sami</span><span class="task-time">il y a 2h</span></div></div>
+          <div class="task-card tc-wait"><div class="task-title">Remboursement client hors procédure standard</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(245,183,49,0.12);color:var(--amber)">Yanis</span><span class="task-time">il y a 3h</span></div></div>
+        </div>
+      </div>
+
+      <!-- Terminé 24h -->
+      <div class="kanban-col">
+        <div class="k-header kh-done">Terminé (24h) <span class="k-count">9</span></div>
+        <div class="k-cards">
+          <div class="task-card tc-done"><div class="task-title">Ticket #4021 résolu · satisfaction 5/5</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Yanis</span><span class="task-time">08:52</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">Devis #2026-118 envoyé · 3 400€ HT</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Marc</span><span class="task-time">08:40</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">Publication LinkedIn + Instagram · portée 3 200 vues</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Nora</span><span class="task-time">08:15</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">15 relances paiement envoyées · 4 encaissements confirmés</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Camille</span><span class="task-time">08:47</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">Daily brief consolidé envoyé à la direction</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Iris</span><span class="task-time">09:00</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">12 candidatures triées · 3 profils pré-qualifiés</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Sami</span><span class="task-time">hier 17:30</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">8 leads qualifiés et transmis à l'équipe commerciale</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Léa</span><span class="task-time">hier 16:10</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">Rapport de satisfaction mensuel généré et envoyé</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Yanis</span><span class="task-time">hier 09:00</span></div></div>
+          <div class="task-card tc-done"><div class="task-title">Relance J+2 · devis #2026-114 · 2 100€ HT</div><div class="task-meta"><span class="task-agent-tag" style="background:rgba(82,200,122,0.1);color:var(--green)">Marc</span><span class="task-time">hier 08:30</span></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── VUE ORGANIGRAMME ── -->
+  <div id="view-organigramme" class="view">
+    <div class="view-header">
+      <div>
+        <div class="view-title">Organigramme</div>
+        <div class="view-subtitle">Exemple d’organisation · à adapter à votre entreprise du bâtiment</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:2em; align-items:flex-start;">
+
+      <!-- ── ARBRE ── -->
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+
+        <!-- Niveau 1 : Direction -->
+        <div style="background:var(--surface2); border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:0.8em 2.8em; text-align:center;">
+          <div style="font-size:0.84em; font-weight:600; color:var(--text);">Direction · Votre Entreprise</div>
+          <div style="font-size:0.62em; color:var(--text-dim); margin-top:0.2em;">Chantiers humain</div>
+        </div>
+
+        <div class="org-vline" style="height:28px;"></div>
+
+        <!-- Niveau 2 : 6 départements + agents -->
+        <div class="org-dept-tree" style="width:100%;">
+
+          <!-- Commercial -->
+          <div class="org-dept-col">
+            <div class="org-box-dept" style="background:var(--accent);color:#0B0B0C;">Commercial<span>2 agents</span></div>
+            <div class="org-agent-stack">
+              <div class="org-box-agent"><b>Léa</b><span>Qualification &amp; prospection</span></div>
+              <div class="org-box-agent"><b>Marc</b><span>Suivi &amp; devis</span></div>
+            </div>
+          </div>
+
+          <!-- Chantiers -->
+          <div class="org-dept-col">
+            <div class="org-box-dept" style="background:var(--blue);color:#0B0B0C;">Chantiers<span>1 agent</span></div>
+            <div class="org-agent-stack">
+              <div class="org-box-agent"><b>Nora</b><span>Contenu &amp; diffusion</span></div>
+            </div>
+          </div>
+
+          <!-- Clients -->
+          <div class="org-dept-col">
+            <div class="org-box-dept" style="background:var(--green);color:#0B0B0C;">Clients<span>1 agent</span></div>
+            <div class="org-agent-stack">
+              <div class="org-box-agent"><b>Yanis</b><span>Support &amp; réclamations</span></div>
+            </div>
+          </div>
+
+          <!-- Admin & Finance -->
+          <div class="org-dept-col">
+            <div class="org-box-dept" style="background:var(--purple);color:#0B0B0C;">Admin &amp; Finance<span>1 agent</span></div>
+            <div class="org-agent-stack">
+              <div class="org-box-agent"><b>Camille</b><span>Facturation &amp; relances</span></div>
+            </div>
+          </div>
+
+          <!-- RH -->
+          <div class="org-dept-col">
+            <div class="org-box-dept" style="background:var(--amber);color:#0B0B0C;">RH &amp; Recrutement<span>1 agent</span></div>
+            <div class="org-agent-stack">
+              <div class="org-box-agent"><b>Sami</b><span>Tri CV &amp; pré-qualification</span></div>
+            </div>
+          </div>
+
+          <!-- Direction -->
+          <div class="org-dept-col">
+            <div class="org-box-dept" style="background:var(--surface2);color:var(--text);border:1px solid var(--border);">Direction<span>1 agent</span></div>
+            <div class="org-agent-stack">
+              <div class="org-box-agent"><b>Iris</b><span>Reporting &amp; consolidation</span></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ── LÉGENDE ── -->
+      <div class="org-legend">
+        <div class="legend-card">
+          <div class="legend-title">Agents déployés</div>
+          <div class="legend-val">7</div>
+          <div class="legend-sub">Sur l'ensemble de l'entreprise</div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-title">Départements couverts</div>
+          <div class="legend-val">6 / 6</div>
+          <div class="legend-sub">Commercial, Chantiers, Support, Admin, RH, Direction</div>
+        </div>
+        <div class="legend-card" style="border-color:var(--accent-border)">
+          <div class="legend-title">Temps interne économisé</div>
+          <div class="legend-val">~140h</div>
+          <div class="legend-sub">par mois, tous départements confondus</div>
+        </div>
+        <div class="legend-card">
+          <div class="legend-title">Uptime agents</div>
+          <div class="legend-val">99.8%</div>
+          <div class="legend-sub">Ce mois · SLA garanti 99%</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- ═══════════ CHAT OVERLAYS ═══════════ -->
+
+<!-- Léa -->
+<div id="chat-lea" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--accent);color:#0B0B0C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">L</div>
+    <div><div class="chat-agent-name">Léa · Agent de qualification &amp; prospection</div><div class="chat-agent-role">Commercial · CRM · LinkedIn · Gmail</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">L</div><div><div class="msg-bubble">Bonjour. 3 nouveaux leads entrants ce matin, tous qualifiés. Le plus chaud : budget confirmé, décision sous 2 semaines, score 84/100. Je transmets à Marc pour la proposition ?</div><div class="msg-time">09:02</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Oui, transmets. Et la prospection LinkedIn, ça donne quoi cette semaine ?</div><div class="msg-time">09:05</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">L</div><div><div class="msg-bubble">18 profils ciblés contactés, 6 réponses positives, taux de réponse 33%. Je ne contacte que des profils qui matchent vos critères — pas de volume pour du volume.</div><div class="msg-time">09:06</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Est-ce qu'il y a des leads qu'on a laissé filer ?</div><div class="msg-time">09:09</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">L</div><div><div class="msg-bubble">Aucun. Chaque lead reçoit une première réponse en moins de 5 minutes, 24h/24. Ceux hors horaires reçoivent un accusé automatique avec promesse de rappel le matin suivant.</div><div class="msg-time">09:09</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Parfait, continue comme ça.</div><div class="msg-time">09:10</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">L</div><div><div class="msg-bubble">Compris ✓. Je vous envoie le récap complet de la semaine vendredi.</div><div class="msg-time">09:10</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Léa..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<!-- Marc -->
+<div id="chat-marc" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--accent);color:#0B0B0C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">M</div>
+    <div><div class="chat-agent-name">Marc · Agent de suivi commercial &amp; devis</div><div class="chat-agent-role">Commercial · CRM · Email · Calendrier</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">M</div><div><div class="msg-bubble">Bonjour. Devis #2026-118 envoyé ce matin — 3 400€ HT, relance J+2 et J+5 programmées automatiquement en cas de silence.</div><div class="msg-time">08:40</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Il y a un client grand compte qui demande -10%, tu en penses quoi ?</div><div class="msg-time">09:12</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">M</div><div><div class="msg-bubble">Je l'ai placé en "Validation requise" — c'est au-delà de ma marge de manœuvre standard (-5% max sans validation). Le dossier complet est prêt, il ne manque que votre feu vert.</div><div class="msg-time">09:13</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">OK, je regarde ça dans le Task Board. Combien de devis sont encore sans réponse ?</div><div class="msg-time">09:15</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">M</div><div><div class="msg-bubble">4 devis en attente, aucun au-delà de J+2 sans relance. Le plus ancien date de mardi, relance déjà partie ce matin à 08h00.</div><div class="msg-time">09:15</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Nickel, merci.</div><div class="msg-time">09:16</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">M</div><div><div class="msg-bubble">Avec plaisir ✓. Je vous notifie dès que le client grand compte répond.</div><div class="msg-time">09:16</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Marc..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<!-- Nora -->
+<div id="chat-nora" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--blue);color:#0B0B0C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">N</div>
+    <div><div class="chat-agent-name">Nora · Agent de contenu &amp; diffusion</div><div class="chat-agent-role">Chantiers · Réseaux sociaux · Canva · Email</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">N</div><div><div class="msg-bubble">Bonjour. Post de ce matin publié sur LinkedIn et Instagram — déjà 3 200 vues et 11 leads générés cette semaine grâce au contenu.</div><div class="msg-time">08:15</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">On avait du mal à garder un rythme de publication régulier avant. Comment tu gères ça ?</div><div class="msg-time">09:20</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">N</div><div><div class="msg-bubble">Je prépare et programme le contenu 2 semaines à l'avance à partir de vos actualités internes, avis clients et offres du moment. 3 publications par semaine minimum, sans jamais dépendre d'un rappel humain.</div><div class="msg-time">09:21</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Est-ce que tu peux aussi répondre aux commentaires ?</div><div class="msg-time">09:23</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">N</div><div><div class="msg-bubble">Oui, je réponds aux commentaires simples (remerciements, questions générales) et je vous notifie pour tout ce qui touche à une réclamation ou une question commerciale précise.</div><div class="msg-time">09:23</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Parfait, continue comme ça.</div><div class="msg-time">09:24</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">N</div><div><div class="msg-bubble">Compris ✓. Prochaine publication demain 10h — teaser de l'offre du mois.</div><div class="msg-time">09:24</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Nora..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<!-- Yanis -->
+<div id="chat-yanis" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--green);color:#0B0B0C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">Y</div>
+    <div><div class="chat-agent-name">Yanis · Agent de support &amp; réclamations</div><div class="chat-agent-role">Clients · WhatsApp · Email · CRM</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">Y</div><div><div class="msg-bubble">Bonjour. 63 tickets traités cette semaine, temps de réponse moyen 4 minutes, satisfaction 96%. Aucun ticket resté sans réponse plus de 24h.</div><div class="msg-time">09:00</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Il y a une demande de remboursement hors procédure, comment tu la gères ?</div><div class="msg-time">09:18</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">Y</div><div><div class="msg-bubble">Je l'ai placée en "Validation requise" — le montant dépasse le seuil que je peux traiter seul. J'ai déjà rassemblé l'historique client et la justification pour accélérer votre décision.</div><div class="msg-time">09:19</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Ok je regarde ça. Sinon, y'a des clients mécontents en ce moment ?</div><div class="msg-time">09:21</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">Y</div><div><div class="msg-bubble">Un seul signal négatif cette semaine — délai de livraison. Résolu en direct, client recontacté et rassuré. Rien qui nécessite votre intervention actuellement.</div><div class="msg-time">09:21</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Top, merci Yanis.</div><div class="msg-time">09:22</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">Y</div><div><div class="msg-bubble">Avec plaisir ✓. Rapport de satisfaction mensuel prêt vendredi.</div><div class="msg-time">09:22</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Yanis..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<!-- Camille -->
+<div id="chat-camille" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--purple);color:#0B0B0C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">C</div>
+    <div><div class="chat-agent-name">Camille · Agent de facturation &amp; relances paiement</div><div class="chat-agent-role">Admin &amp; Finance · Comptabilité · Email · Banque</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">C</div><div><div class="msg-bubble">Bonjour. 15 relances de paiement envoyées cette semaine, 4 encaissements confirmés depuis hier. Les retards de paiement ont baissé de 38% depuis le début du mois.</div><div class="msg-time">08:47</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">On perdait pas mal de temps avant sur les relances impayés. C'est quoi ta méthode ?</div><div class="msg-time">09:25</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">C</div><div><div class="msg-bubble">Je surveille chaque échéance en continu. Relance douce à J+3, ferme à J+10, escalade à J+20 avec notification direction. Aucune facture ne reste sans suivi.</div><div class="msg-time">09:26</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Il y a un avoir de 620€ hors barème, tu peux m'expliquer ?</div><div class="msg-time">09:28</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">C</div><div><div class="msg-bubble">Oui — client fidèle, erreur de facturation de notre côté sur la commande précédente. Montant au-delà de mon seuil d'autonomie (300€), donc je l'ai remonté pour validation avec le détail du dossier.</div><div class="msg-time">09:28</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Ok, je valide. Vas-y.</div><div class="msg-time">09:29</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">C</div><div><div class="msg-bubble">Avoir émis ✓. Le client sera notifié dans l'heure.</div><div class="msg-time">09:29</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Camille..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<!-- Sami -->
+<div id="chat-sami" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--amber);color:#0B0B0C;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">S</div>
+    <div><div class="chat-agent-name">Sami · Agent de tri CV &amp; pré-qualification</div><div class="chat-agent-role">RH &amp; Recrutement · LinkedIn · Email · ATS</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">S</div><div><div class="msg-bubble">Bonjour. 47 Disponibilités vérifiées cette semaine pour le poste "Chargé(e) de clientèle" — 8 profils pré-qualifiés selon vos critères, 3 entretiens déjà proposés.</div><div class="msg-time">09:00</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">On recevait tellement de candidatures qu'on en ratait des bonnes avant. Comment tu tries ?</div><div class="msg-time">09:30</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">S</div><div><div class="msg-bubble">Je vérifie l'expérience, les compétences clés et la cohérence avec le poste, puis je classe par pertinence. Les profils à fort potentiel sont remontés en premier avec un résumé — vous ne voyez que ce qui mérite votre attention.</div><div class="msg-time">09:31</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Un candidat est prêt pour l'entretien final ?</div><div class="msg-time">09:33</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">S</div><div><div class="msg-bubble">Oui, un profil correspond très bien — 4 ans d'expérience similaire, disponible sous 2 semaines. Placé en "Validation requise" pour confirmer l'entretien final avec vous.</div><div class="msg-time">09:33</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Cale un créneau cette semaine.</div><div class="msg-time">09:34</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">S</div><div><div class="msg-bubble">Compris ✓. Créneau proposé jeudi 15h, confirmation candidat en cours.</div><div class="msg-time">09:34</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Sami..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<!-- Iris -->
+<div id="chat-iris" class="chat-overlay">
+  <div class="chat-header">
+    <button class="btn-back" onclick="closeAgentChat()">← Retour</button>
+    <div class="a-avatar" style="width:34px;height:34px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85em;flex-shrink:0;">I</div>
+    <div><div class="chat-agent-name">Iris · Agent de reporting &amp; consolidation</div><div class="chat-agent-role">Direction · Tous systèmes · Slack · Email</div></div>
+  </div>
+  <div class="chat-messages">
+    <div class="msg agent"><div class="m-avatar av-agent">I</div><div><div class="msg-bubble">Bonjour. Rapport consolidé 09h00 envoyé — synthèse des 6 départements : 184 tâches automatisées cette semaine, 2 points d'attention identifiés (voir Task Board).</div><div class="msg-time">09:00</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">C'est quoi les 2 points d'attention ?</div><div class="msg-time">09:35</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">I</div><div><div class="msg-bubble">1) Un avoir client hors barème en attente de votre validation depuis 26 min. 2) Le taux de conversion commercial a légèrement baissé cette semaine (29% vs 34%) — à surveiller, rien d'alarmant pour l'instant.</div><div class="msg-time">09:36</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">Avant, je passais des heures chaque semaine à réunir les chiffres de chaque équipe. Là c'est toi qui centralises tout ?</div><div class="msg-time">09:38</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">I</div><div><div class="msg-bubble">Exactement. Je me connecte à tous les agents et outils de l'entreprise, je consolide chaque matin et je vous signale uniquement ce qui mérite une décision humaine. Le reste tourne sans vous solliciter.</div><div class="msg-time">09:38</div></div></div>
+    <div class="msg human"><div class="m-avatar av-human">VE</div><div><div class="msg-bubble">C'est exactement ce qu'il me fallait.</div><div class="msg-time">09:39</div></div></div>
+    <div class="msg agent"><div class="m-avatar av-agent">I</div><div><div class="msg-bubble">Ravi que ça vous parle ✓. Rapport complet de la semaine disponible vendredi 17h.</div><div class="msg-time">09:39</div></div></div>
+  </div>
+  <div class="chat-input-area"><div class="chat-input-wrap"><input type="text" placeholder="Demande quelque chose à Iris..." readonly><div class="btn-send">Envoyer</div></div></div>
+</div>
+
+<script>
+  function switchView(name) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.chat-overlay').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('view-' + name);
+    if (el) el.classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(n => {
+      n.classList.remove('active');
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + name + "'")) {
+        n.classList.add('active');
+      }
+    });
+  }
+  function openAgentChat(name) {
+    document.querySelectorAll('.chat-overlay').forEach(c => c.classList.remove('active'));
+    const el = document.getElementById('chat-' + name);
+    if (el) el.classList.add('active');
+  }
+  function closeAgentChat() {
+    document.querySelectorAll('.chat-overlay').forEach(c => c.classList.remove('active'));
+  }
+</script>
+</body>
+</html>
